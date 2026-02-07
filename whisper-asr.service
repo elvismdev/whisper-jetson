@@ -1,0 +1,23 @@
+[Unit]
+Description=Whisper ASR Service (faster-whisper GPU)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+TimeoutStartSec=600
+ExecStartPre=-/usr/bin/docker stop whisper-asr
+ExecStartPre=-/usr/bin/docker rm whisper-asr
+ExecStart=/usr/bin/docker run --runtime nvidia --name whisper-asr --network host \
+    -e ASR_ENGINE=faster_whisper \
+    -e ASR_MODEL=large-v3 \
+    -e ASR_QUANTIZATION=float16 \
+    -e ASR_DEVICE=cuda \
+    -v whisper-models:/root/.cache/huggingface \
+    ghcr.io/elvismdev/whisper-jetson:latest
+ExecStop=/usr/bin/docker stop whisper-asr
+
+[Install]
+WantedBy=multi-user.target
