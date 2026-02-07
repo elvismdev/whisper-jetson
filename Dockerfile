@@ -160,48 +160,6 @@ RUN pip install --no-cache-dir --no-deps -e . 2>/dev/null || \
     (printf '#!/usr/bin/env python3\nfrom app.webservice import start\nstart()\n' > /usr/local/bin/whisper-asr-webservice && \
      chmod +x /usr/local/bin/whisper-asr-webservice)
 
-# ---- Slim down: remove components not needed by faster-whisper at runtime ----
-RUN <<'CLEANUP'
-set -e
-
-# Remove TensorRT (~3.1 GB) — CTranslate2 does not use it
-rm -rf /usr/src/tensorrt
-pip uninstall -y tensorrt 2>/dev/null || true
-find /usr/lib -name "libnvinfer*" -delete 2>/dev/null || true
-find /usr/lib -name "libnvonnxparser*" -delete 2>/dev/null || true
-
-# Remove ONNX Runtime (~788 MB) — not used by faster-whisper
-pip uninstall -y onnxruntime onnxruntime-gpu 2>/dev/null || true
-rm -rf /usr/local/lib/python*/dist-packages/onnxruntime*
-
-# Remove ONNX (~75 MB)
-pip uninstall -y onnx 2>/dev/null || true
-
-# Remove build tools not needed at runtime (~900 MB)
-apt-get purge -y --auto-remove \
-    build-essential gcc g++ cpp make \
-    cmake cmake-data \
-    gdb gdbserver \
-    sshpass ssh-client openssh-client \
-    git-lfs \
-    software-properties-common \
-    2>/dev/null || true
-apt-get autoremove -y 2>/dev/null || true
-apt-get clean
-
-# Remove pip cache, __pycache__, and other cruft
-rm -rf /root/.cache/pip /tmp/* /var/tmp/*
-find /usr -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
-
-# Remove CUDA dev headers/static libs (keep runtime .so files)
-rm -rf /usr/local/cuda/doc
-rm -rf /usr/local/cuda/samples
-find /usr/local/cuda -name "*.a" -delete 2>/dev/null || true
-find /usr/include -name "cudnn*" -delete 2>/dev/null || true
-
-echo "Cleanup complete"
-CLEANUP
-
 # Model cache directory
 RUN mkdir -p /root/.cache/huggingface
 

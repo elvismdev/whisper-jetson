@@ -21,7 +21,7 @@ Built on top of:
 - NVIDIA Jetson AGX Orin (64GB recommended)
 - JetPack 6.x (tested on JetPack 6.2.1 / R36.4.7)
 - Docker with NVIDIA runtime (`--runtime nvidia`)
-- ~10 GB disk space (container image + model)
+- ~20 GB disk space (container image ~17.5 GB + model ~3 GB)
 
 ## Quick Start (Pull Pre-built Image)
 
