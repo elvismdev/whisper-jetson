@@ -4,7 +4,7 @@ GPU-accelerated speech-to-text service for **NVIDIA Jetson AGX Orin** devices. P
 
 Built on top of:
 - [dustynv/faster-whisper](https://github.com/dusty-nv/jetson-containers) — pre-built ARM64 container with CTranslate2 + CUDA for Jetson
-- [whisper-asr-webservice](https://github.com/ahmetoner/whisper-asr-webservice) — FastAPI app with Swagger UI for audio transcription
+- [whisper-asr-webservice](https://github.com/ahmetoner/whisper-asr-webservice) — vendored and adapted FastAPI app with Swagger UI (see `app/`)
 
 ## Features
 
