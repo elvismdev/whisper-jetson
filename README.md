@@ -83,7 +83,7 @@ You'll see the Swagger UI where you can:
 
 ## Auto-Start on Boot (systemd)
 
-To have the service start automatically when the Jetson boots:
+To have the service start automatically when the Jetson boots, copy the included `whisper-asr.service` file from this repo:
 
 ### 1. Copy the service file
 
@@ -193,18 +193,29 @@ curl -X POST "http://<your-jetson-ip>:9000/asr?output=txt" \
     -F "audio_file=@recording.mp3"
 ```
 
+## CI/CD
+
+This repo uses a **self-hosted GitHub Actions runner** on the Jetson itself. Pushing to `main` (when the `Dockerfile` or workflow changes) automatically:
+
+1. Builds the image on the Jetson
+2. Pushes it to GHCR with `:latest` and `:sha-<commit>` tags
+3. Restarts the `whisper-asr` systemd service with the new image
+4. Cleans up old image tags and build cache
+
+The workflow is defined in `.github/workflows/build-and-push.yml`.
+
 ## Updating
 
-To pull the latest version of the image and restart the service:
+If you're running this on a **different Jetson** (not the build runner), pull the latest image and restart:
 
 ```bash
-# Pull the latest image
 sudo docker pull ghcr.io/elvismdev/whisper-jetson:latest
-
-# Restart the service (if using systemd)
 sudo systemctl restart whisper-asr.service
+```
 
-# Or if running manually, stop and re-run
+If running manually without systemd:
+
+```bash
 sudo docker stop whisper-asr && sudo docker rm whisper-asr
 # Then run the docker run command from Quick Start step 3
 ```
