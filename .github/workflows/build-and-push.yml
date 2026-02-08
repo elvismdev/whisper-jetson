@@ -1,0 +1,46 @@
+name: Build and Push to GHCR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/build-and-push.yml"
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, ARM64]
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u elvismdev --password-stdin
+
+      - name: Set short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        run: |
+          docker build \
+            -t ghcr.io/elvismdev/whisper-jetson:latest \
+            -t ghcr.io/elvismdev/whisper-jetson:sha-${{ steps.vars.outputs.sha_short }} \
+            .
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/elvismdev/whisper-jetson:latest
+          docker push ghcr.io/elvismdev/whisper-jetson:sha-${{ steps.vars.outputs.sha_short }}
+
+      - name: Restart whisper-asr service
+        run: sudo systemctl restart whisper-asr
+
+      - name: Prune old build layers
+        if: always()
+        run: docker builder prune -f --filter "until=72h" || true
