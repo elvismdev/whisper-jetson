@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "Dockerfile"
+      - "app/**"
       - ".github/workflows/build-and-push.yml"
 
 jobs:
