@@ -90,7 +90,7 @@ class WriteJSON(ResultWriter):
 
     def write_result(self, result: dict, file: TextIO):
         if "segments" in result:
-            result["segments"] = [asdict(segment) for segment in result["segments"]]
+            result["segments"] = [s._asdict() if hasattr(s, '_asdict') else asdict(s) for s in result["segments"]]
         json.dump(result, file)
 
 
