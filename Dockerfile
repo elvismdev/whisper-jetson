@@ -8,6 +8,10 @@
 ARG BASE_IMAGE=dustynv/faster-whisper:r36.4.0-cu128-24.04
 FROM ${BASE_IMAGE}
 
+LABEL org.opencontainers.image.source=https://github.com/elvismdev/whisper-jetson
+LABEL org.opencontainers.image.description="GPU-accelerated Whisper ASR for NVIDIA Jetson"
+LABEL org.opencontainers.image.license=MIT
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Fix pip to use standard PyPI (base image only has Jetson AI Lab index which may be unreachable)
