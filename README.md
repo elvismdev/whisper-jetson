@@ -140,7 +140,7 @@ sudo docker build -t ghcr.io/elvismdev/whisper-jetson:latest .
 
 > **Note:** This must be built on an ARM64 Jetson device (or using ARM64 emulation). The base image `dustynv/faster-whisper:r36.4.0-cu128-24.04` is ARM64/Jetson-specific.
 
-The build takes roughly 5-10 minutes depending on network speed (it downloads the webservice code, Swagger UI assets, and Python dependencies).
+The build takes roughly 5 minutes depending on network speed (it downloads Swagger UI assets and Python dependencies). The webservice code is vendored in the `app/` directory and copied directly into the image.
 
 ### 3. Run
 
@@ -152,7 +152,7 @@ Environment variables you can pass to the container:
 
 | Variable | Default | Description |
 |---|---|---|
-| `ASR_ENGINE` | `faster_whisper` | ASR engine (`faster_whisper`, `openai_whisper`, `whisperx`) |
+| `ASR_ENGINE` | `faster_whisper` | ASR engine (only `faster_whisper` is supported) |
 | `ASR_MODEL` | `large-v3` | Whisper model size (`tiny`, `base`, `small`, `medium`, `large-v2`, `large-v3`) |
 | `ASR_QUANTIZATION` | `float16` | Compute type (`float16`, `int8_float16`, `int8`) |
 | `ASR_DEVICE` | `cuda` | Device (`cuda` or `cpu`) |
@@ -195,7 +195,7 @@ curl -X POST "http://<your-jetson-ip>:9000/asr?output=txt" \
 
 ## CI/CD
 
-This repo uses a **self-hosted GitHub Actions runner** on the Jetson itself. Pushing to `main` (when the `Dockerfile` or workflow changes) automatically:
+This repo uses a **self-hosted GitHub Actions runner** on the Jetson itself. Pushing to `main` (when the `Dockerfile`, `app/` code, or workflow changes) automatically:
 
 1. Builds the image on the Jetson
 2. Pushes it to GHCR with `:latest` and `:sha-<commit>` tags
