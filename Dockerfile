@@ -148,7 +148,21 @@ langs = {
 sp = site.getsitepackages()[0]
 whisper_dir = os.path.join(sp, 'whisper')
 os.makedirs(whisper_dir, exist_ok=True)
-pathlib.Path(os.path.join(whisper_dir, '__init__.py')).write_text('')
+pathlib.Path(os.path.join(whisper_dir, '__init__.py')).write_text(
+'''import numpy as np
+
+SAMPLE_RATE = 16000
+N_SAMPLES = SAMPLE_RATE * 30  # 30 seconds
+
+def pad_or_trim(array, length=N_SAMPLES, *, axis=-1):
+    if array.shape[axis] > length:
+        array = array[..., :length]
+    if array.shape[axis] < length:
+        pad_widths = [(0, 0)] * array.ndim
+        pad_widths[axis] = (0, length - array.shape[axis])
+        array = np.pad(array, pad_widths)
+    return array
+''')
 pathlib.Path(os.path.join(whisper_dir, 'tokenizer.py')).write_text('LANGUAGES = ' + repr(langs))
 print('Created whisper tokenizer shim with', len(langs), 'languages')
 "
