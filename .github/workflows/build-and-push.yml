@@ -41,6 +41,19 @@ jobs:
       - name: Restart whisper-asr service
         run: sudo systemctl restart whisper-asr
 
-      - name: Prune old build layers
+      - name: Remove old image tags
         if: always()
-        run: docker builder prune -f --filter "until=72h" || true
+        run: |
+          # Remove all sha-* tags except the one we just built
+          docker images ghcr.io/elvismdev/whisper-jetson --format '{{.Repository}}:{{.Tag}}' \
+            | grep ':sha-' \
+            | grep -v ":sha-${{ steps.vars.outputs.sha_short }}" \
+            | xargs -r docker rmi || true
+
+      - name: Prune unused Docker data
+        if: always()
+        run: |
+          # Remove stopped containers, dangling images, and build cache
+          docker container prune -f
+          docker image prune -f
+          docker builder prune -f --filter "until=72h"
